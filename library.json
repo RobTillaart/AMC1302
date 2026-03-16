@@ -1,6 +1,6 @@
 {
   "name": "AMC1302",
-  "keywords": "",
+  "keywords": "AMC1300,AMC1301,AMC1311,AMC1351",
   "description": "Arduino library for AMC1302 current sensor.",
   "authors":
   [

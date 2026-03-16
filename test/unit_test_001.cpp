@@ -47,7 +47,17 @@ unittest(test_constants)
 
 unittest(test_constructor)
 {
-  AMC1302 amc(14, 15);
+  AMC1300 amc00(14, 15);
+  AMC1301 amc01(14, 15);
+  AMC1302 amc02(14, 15);
+  AMC1311 amc11(14, 15);
+  AMC1351 amc51(14, 15);
+
+  assertEqualFloat(amc00.getGain(), 8.2, 0.01);
+  assertEqualFloat(amc01.getGain(), 8.2, 0.01);
+  assertEqualFloat(amc02.getGain(),  41, 0.01);
+  assertEqualFloat(amc11.getGain(), 1.0, 0.01);
+  assertEqualFloat(amc51.getGain(), 0.4, 0.01);
 }
 
 

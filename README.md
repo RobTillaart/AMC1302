@@ -27,8 +27,27 @@ The calculation is done with Ohm's law, current = (Vn - Vp) / shunt.
 The AMC1302 has a build in GAIN of 41, so it is used to measure small
 voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
 
+The AMC1302 is internally opto-isolated so the processor is protected 
+against sudden fluctuations. (read datasheet for details).
+
 The library can also read the voltage before (N) and after (P) the shunt,
 and provides a raw **readDiff()**. 
+
+The library has the following five classes, code wise the only difference
+is the gain. So be sure to use the correct class.
+
+|  device    |  gain  |  error  |  drift       |
+|:----------:|:------:|:-------:|:------------:|
+|  AMC1300   |   8.2  |  ±1.0%  |  ±50 ppm/°C  |
+|  AMC1300B  |   8.2  |  ±0.3%  |  ±30 ppm/°C  |
+|  AMC1301   |   8.2  |  ±0.3%  |  ±50 ppm/°C  |
+|  AMC1302   |  41.0  |  ±0.2%  |  ±35 ppm/°C  |
+|  AMC1311   |   1.0  |  ±1.0%  |  ±30 ppm/°C  |
+|  AMC1311B  |   1.0  |  ±0.2%  |  ±40 ppm/°C  |
+|  AMC1351   |   0.4  |  ±0.2%  |  ±35 ppm/°C  |
+
+As the gain error is on the order 1 in 1000, it makes little sense to use
+an ADC with e.g. more than 12 bit. 
 
 The library does not support external ADCs yet.
 
@@ -45,8 +64,16 @@ Feedback as always welcome,
 
 ### Compatibles
 
-There exists a series AMC130x devices, investigate.
-- AMC1301 (?)
+Derived classes exist for the following
+- AMC1300
+- AMC1301
+- AMC1311
+- AMC1351
+
+There exists AMC1304, AMC1305, AMC1306 AMC1336, but these are not compatible.
+
+If you know more compatible devices, please let me know.
+
 
 ### Related
 
@@ -95,6 +122,7 @@ Drawback it is slower and the measurements are further separated
 in time.
 - **float readVoltageN()** reads the voltage at N (before shunt).
 - **float readVoltageP()** reads the voltage at P (after shunt).
+
 
 ### Misc
 

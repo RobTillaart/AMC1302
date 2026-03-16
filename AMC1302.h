@@ -36,22 +36,54 @@ public:
 
   //  DEBUGGING
   int32_t  readDiff();
+  float    getGain();
 
   //  placeholder
   int16_t  getLastError();
 
-private:
+protected:
   uint8_t _outNpin;
   uint8_t _outPpin;
 
-  const float _gain  = 41;  //  fixed see datasheet
+  float   _gain;  //  fixed see datasheet, set in constructor.
 
-  float   _voltsPerStep  = 1.0f;
-  float   _shunt = 50e-3;
-  float   _voltsToCurrent = 1.0f;
+  float   _voltsPerStep  = 1.0f;   //  e.g. 5.0/1023
+  float   _shunt = 50e-3;          //  50 mOhm
+  float   _voltsToCurrent = 1.0f;  //  factor for optimized math
 
   uint8_t _lastError = AMC1302_OK;
 };
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//  DERIVED CLASSES
+//
+class AMC1300 : public AMC1302
+{
+public:
+  AMC1300(uint8_t outNpin, uint8_t outPpin);
+};
+
+class AMC1301 : public AMC1302
+{
+public:
+  AMC1301(uint8_t outNpin, uint8_t outPpin);
+};
+
+class AMC1311 : public AMC1302
+{
+public:
+  AMC1311(uint8_t outNpin, uint8_t outPpin);
+};
+
+class AMC1351 : public AMC1302
+{
+public:
+  AMC1351(uint8_t outNpin, uint8_t outPpin);
+};
+
+
 
 
 //  -- END OF FILE --

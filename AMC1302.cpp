@@ -15,6 +15,7 @@ AMC1302::AMC1302(uint8_t outNpin, uint8_t outPpin)
   _outNpin = outNpin;
   _outPpin = outPpin;
   _lastError = AMC1302_OK;
+  _gain = 41;
 }
 
 
@@ -80,12 +81,48 @@ int32_t AMC1302::readDiff()
 }
 
 
+float AMC1302::getGain()
+{
+  return _gain;
+}
+
+
 int16_t AMC1302::getLastError()
 {
   int16_t e = _lastError;
   _lastError = AMC1302_OK;
   return e;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//  DERIVED CLASSES
+//
+AMC1300::AMC1300(uint8_t outNpin, uint8_t outPpin)
+        :AMC1302(outNpin, outPpin)
+{
+  _gain = 8.2f;
+}
+
+AMC1301::AMC1301(uint8_t outNpin, uint8_t outPpin)
+        :AMC1302(outNpin, outPpin)
+{
+  _gain = 8.2f;
+}
+
+AMC1311::AMC1311(uint8_t outNpin, uint8_t outPpin)
+        :AMC1302(outNpin, outPpin)
+{
+  _gain =1.0f;
+}
+
+AMC1351::AMC1351(uint8_t outNpin, uint8_t outPpin)
+        :AMC1302(outNpin, outPpin)
+{
+  _gain = 0.4f;
+}
+
 
 
 //  -- END OF FILE --
