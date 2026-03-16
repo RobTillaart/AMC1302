@@ -8,7 +8,7 @@
 #include "AMC1302.h"
 
 
-AMC1302 amc(A0, A1);
+AMC1302 amc(14, 15);
 
 
 void setup()
@@ -20,8 +20,8 @@ void setup()
   Serial.println(AMC1302_LIB_VERSION);
   Serial.println();
 
-  //  volts per step, shunt
-  amc.begin(5.0/1023, 50e-3);
+  //  volts per step, shunt 50 milli-Ohm
+  amc.begin(5.0/1023, 0.050);
 }
 
 
