@@ -6,6 +6,7 @@ AMC1302	KEYWORD1
 
 # Methods and Functions (KEYWORD2)
 begin	KEYWORD2
+calibrateVoltsPerStep	KEYWORD2
 
 readCurrent	KEYWORD2
 readVoltageN	KEYWORD2

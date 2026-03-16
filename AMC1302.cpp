@@ -31,6 +31,20 @@ bool AMC1302::begin(float voltsPerStep, float shunt)
 }
 
 
+float AMC1302::calibrateVoltsPerStep(float current)
+{
+  if (current != 0)
+  {
+    float measured = readCurrent();
+    if (measured != 0)
+    {
+      _voltsPerStep = _voltsPerStep * current / measured;
+    }
+  }
+  return _voltsPerStep;
+}
+
+
 float AMC1302::readCurrent(bool twice)
 {
   //  need to stabilize..

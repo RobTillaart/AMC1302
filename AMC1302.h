@@ -28,6 +28,8 @@ public:
   //  call begin() to calibrate.
   bool     begin(float voltsPerStep, float shunt = 50e-3);
 
+  float    calibrateVoltsPerStep(float current);
+
   float    readCurrent(bool twice = false);
   float    readVoltageN();
   float    readVoltageP();
