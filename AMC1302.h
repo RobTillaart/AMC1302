@@ -1,0 +1,60 @@
+#pragma once
+//
+//    FILE: AMC1302.h
+//  AUTHOR: Rob Tillaart
+//    DATE: 2026-03-14
+// VERSION: 0.1.0
+// PURPOSE: Arduino library for AMC1302 current sensor.
+//     URL: https://github.com/RobTillaart/AMC1302
+//
+
+
+#include "Arduino.h"
+#include "Wire.h"
+
+
+#define AMC1302_LIB_VERSION         (F("0.1.0"))
+
+//  ERROR CODES
+//  values <> 0 are errors.
+#define AMC1302_OK                  0
+
+
+class AMC1302
+{
+public:
+  AMC1302(uint8_t outNpin, uint8_t outPpin);
+
+  //  call begin() to calibrate.
+  bool     begin(float voltsPerStep, float shunt = 50e-3);
+
+  float    readCurrent(bool twice = false);
+  float    readVoltageN();
+  float    readVoltageP();
+
+  //  DEBUGGING
+  int32_t  readDiff();
+
+  //  placeholder
+  int16_t  getLastError();
+
+private:
+  uint8_t _outNpin;
+  uint8_t _outPpin;
+
+  const float _gain  = 41;  //  fixed see datasheet
+
+  float   _voltsPerStep  = 1.0f;
+  float   _shunt = 50e-3;
+  float   _voltsToCurrent = 1.0f;
+
+  uint8_t _lastError = AMC1302_OK;
+};
+
+
+//  -- END OF FILE --
+
+
+
+
+
