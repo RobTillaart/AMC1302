@@ -11,18 +11,21 @@
 
 # AMC1302
 
-Arduino library for AMC1302 current sensor.
+Arduino library for AMC1302 current sensor and compatibles.
 
 
 ## Description
 
-**Experimental**
+**Experimental, work in progress**
 
 This library is to read a current with the AMC1302 sensor.
 
+The library is not tested with hardware yet - feedback welcome.
+
 The working is based upon a differential voltage over a defined shunt.
 For the differential voltage 2 ADC measurements are made called N and P.
-The calculation is done with Ohm's law, current = (Vn - Vp) / shunt.
+The calculation for DC is done with Ohm's law, current = (Vp - Vn) / shunt.
+For AC the calculation is more work.
 
 The AMC1302 has a build in GAIN of 41, so it is used to measure small
 voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
@@ -30,14 +33,13 @@ voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
 The AMC1302 is internally opto-isolated so the processor is protected 
 against sudden fluctuations. (read datasheet for details).
 
-The library can also read the voltage before (N) and after (P) the shunt,
-and provides a raw **readDiff()**. 
-
-The library has the following five classes, code wise the only difference
-is the gain. So be sure to use the correct class.
+The library has the following six classes, code wise the only difference
+is the gain. Be sure to use the correct class. 
+For gain error and gain drift check the datasheet.
 
 |  device    |  gain  |  error  |  drift       |
 |:----------:|:------:|:-------:|:------------:|
+|  AMC1200   |   8.0  |  ±0.5%  |  ±50 ppm/°C  |
 |  AMC1300   |   8.2  |  ±1.0%  |  ±50 ppm/°C  |
 |  AMC1300B  |   8.2  |  ±0.3%  |  ±30 ppm/°C  |
 |  AMC1301   |   8.2  |  ±0.3%  |  ±50 ppm/°C  |
@@ -53,7 +55,7 @@ The library does not support external ADCs yet.
 
 The library is not tested with hardware yet.
 
-Feedback as always welcome,
+Feedback as always is welcome,
 
 
 ### Special characters
@@ -64,7 +66,8 @@ Feedback as always welcome,
 
 ### Compatibles
 
-Derived classes exist for the following
+Derived classes exist for the following devices 
+- AMC1200
 - AMC1300
 - AMC1301
 - AMC1311
@@ -77,6 +80,7 @@ If you know more compatible devices, please let me know.
 
 ### Related
 
+- https://github.com/RobTillaart/ACS712 - current library for ACS7xx series.
 - https://github.com/RobTillaart/AMC1302 - this library
 - https://github.com/RobTillaart/INA226 - current and voltage sensor
 - https://github.com/RobTillaart/TRAFO - voltage sensor for 110/230V
@@ -113,50 +117,91 @@ Note begin() has to be called to initialize shunt and first order volts
 per step.
 
 
-### Measurements
+### Frequency Measurements
 
-- **float readCurrent(bool twice = false)** reads outN and outP 
-and calculates the current. The flag twice is used to read both 
-analog pins two times to stabilize the reading.
-Drawback it is slower and the measurements are further separated 
-in time.
+Must be done before AC measurements can be done. Otherwise the AC
+measurements assume a frequency of 50 Hz.
+The detectFrequency() blocks depending on the parameter used.
+If you want to monitor the frequency around 50 Hz, set the minimal
+Frequency to e.g. 45.
+
+- **float detectFrequency(float minimalFrequency = 40)** blocking.
+- **void setMicrosAdjust(float factor = 1.000)** adjust timing 
+for frequency detection. (optional).
+- **float getMicrosAdjust()** idem.
+
+
+### AC Measurements
+
+AC measurements block for at least one cycle, so for 60 Hz this is 17 ms,
+for 50 Hz it is 20 ms.
+
+- **float mA_peak2peak(uint16_t cycles = 1)** measure the peak 
+to peak voltage for AC. More cycles makes it more accurate but takes more time.
+- **float mA_AC(uint16_t cycles = 1)** measures the current-RMS
+by applying a known the crust / FormFactor of the wave.
+See section below.
+- **float mA_AC_sampling(uint16_t cycles = 1)** measures the current-RMS
+by summing the squares of the amplitudes of one period.
+This is to be used for voltages with unknown FormFactor.
+
+
+### Form Factor
+
+- **void setFormFactor(float formFactor = AMC_FF_SINUS)** sets the FormFactor 
+for mA_AC() function.
+- **float getFormFactor()** returns set value.
+
+
+### DC Measurements
+
+- **float mA_DC(uint16_t cycles = 1)** reads outN and outP 
+and calculates the current.
+More cycles makes it more accurate but takes more time.
 - **float readVoltageN()** reads the voltage at N (before shunt).
 - **float readVoltageP()** reads the voltage at P (after shunt).
 
 
-### Misc
+### Debugging
 
-- **int32_t readDiff()** raw differential for debugging.
+- **uint32_t getMinimum()** raw minimum
+- **uint32_t getMaximum()** raw maximum.
+- **int32_t rawDifference()** raw differential.
 Can also be used for own conversion service.
+- **float readVoltageN()** read voltage at outN.
+- **float readVoltageP()** read voltage at outP.
+- **float getGain()** returns hard coded gain. Differs per device type.
+Gain cannot be set.
 - **int16_t getLastError()** placeholder for error handling.
 
-//  GET/SET GAIN to calibrate => float gain?
 
 ## Future
 
 #### Must
 
 - improve documentation
-- get hardware to test
-- fix TODO's in doc / code.
+- get hardware
+- test with hardware
 
 #### Should
 
-- investigate a **float calculateVoltagePerStep(float voltage)** function
-- investigate compatibles.
-- add error handling
-  - out of range
-- double read analog ADC ignore first flag in readCurrent?
-- can other data be derived from this AMC1302?
+- investigate calibration
+  - need hardware
+- remove unneeded functions
 
 #### Could
 
-- support external ADC (see TRAFO)
-- float getPower(volts) { return volts x getCurrent)
+- can other data be derived from this AMC1302?
+- add examples (from ACS712?)
+- investigate support external ADC (see TRAFO / ACS712)
+  - need two of them.
 - create unit tests if possible
-- readDiff(twice?) too?
+- add error handling
+  - out of range
 
 #### Wont
+
+- float getPower(volts) { return volts x getCurrent)
 
 
 ## Support
