@@ -23,18 +23,18 @@ This library is to read a current with the AMC1302 sensor.
 The library is not tested with hardware yet - feedback welcome.
 
 The working is based upon a differential voltage over a defined shunt.
-For the differential voltage 2 ADC measurements are made called N and P.
+For the differential voltage two ADC measurements are made called N and P.
 The calculation for DC is done with Ohm's law, current = (Vp - Vn) / shunt.
-For AC the calculation is more work.
+For AC the calculation is a bit more work.
 
-The AMC1302 has a build in GAIN of 41, so it is used to measure small
+The AMC1302 has a build in fixed GAIN of 41, so it is used to measure small
 voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
 
-The AMC1302 is internally opto-isolated so the processor is protected 
-against sudden fluctuations. (read datasheet for details).
+The AMC1302 is internally opto-isolated so the processor / board is protected 
+against sudden fluctuations. (Read datasheet for details).
 
 The library has the following six classes, code wise the only difference
-is the gain. Be sure to use the correct class. 
+is the gain. Be sure to use the correct class as the gain cannot be set.
 For gain error and gain drift check the datasheet.
 
 |  device    |  gain  |  error  |  drift       |
@@ -48,7 +48,7 @@ For gain error and gain drift check the datasheet.
 |  AMC1311B  |   1.0  |  ±0.2%  |  ±40 ppm/°C  |
 |  AMC1351   |   0.4  |  ±0.2%  |  ±35 ppm/°C  |
 
-As the gain error is on the order 1 in 1000, it makes little sense to use
+As the gain error is in the order 1 in 1000, it makes little sense to use
 an ADC with e.g. more than 12 bit. 
 
 The library does not support external ADCs yet.
@@ -75,7 +75,7 @@ Derived classes exist for the following devices
 
 There exists AMC1304, AMC1305, AMC1306 AMC1336, but these are not compatible.
 
-If you know more compatible devices, please let me know.
+If you know other compatible devices, please let me know.
 
 
 ### Related
@@ -85,12 +85,13 @@ If you know more compatible devices, please let me know.
 - https://github.com/RobTillaart/INA226 - current and voltage sensor
 - https://github.com/RobTillaart/TRAFO - voltage sensor for 110/230V
 - https://github.com/RobTillaart/printHelpers - for scientific format et al.
+- https://github.com/RobTillaart/map2colour - for mapping currents to a colour scale
 
 
 ### Tested
 
 TODO: 
-- Test on Arduino UNO and ESP32
+- Test with hardware Arduino UNO and ESP32
 - get hardware
 
 
@@ -105,41 +106,46 @@ TODO:
 - **AMC1302(uint8_t outNpin, uint8_t outPpin)** defines the internal
 analog pins connected to outN and outP of the AMC1302.
 - **bool begin(float voltsPerStep, float shunt = 50e-3)**
-  - volts per step of the ADC e.g. 5.0/1023  (10 bits 5 volt ADC)
-  - shunt = e.g. 50 mΩ = 50e-3 (or 0.050)
+  - volts per step of the ADC e.g. 5.0/1023 = 10 bits 5 volt ADC.
+  - shunt = e.g. 50 mΩ = 50e-3 or 0.050
 - **float calibrateVoltsPerStep(float current)** optional function to 
 calibrate the begin() function one can measure an exact current with a 
 calibrated device (DMM).
 This function adjusts and returns the voltsPerStep parameter based upon 
 given shunt and the **current** parameter which should not be 0 (zero).
-The value is returned so it can be used for the begin() function.
+The value is returned so it can be used for the **begin()** function.
 Note begin() has to be called to initialize shunt and first order volts
 per step.
 
 
 ### Frequency Measurements
 
-Must be done before AC measurements can be done. Otherwise the AC
-measurements assume a frequency of 50 Hz.
-The detectFrequency() blocks depending on the parameter used.
+The frequency measurement must be done to determine the frequency and 
+period of the AC current. This must be done before AC measurements can 
+be made accurately. Default the AC measurements assume a frequency of 50 Hz.
+The detectFrequency() blocks for a time depending on the parameter used.
 If you want to monitor the frequency around 50 Hz, set the minimal
-Frequency to e.g. 45.
+frequency to e.g. 45.
 
-- **float detectFrequency(float minimalFrequency = 40)** blocking.
+- **void setFrequency(float frequency)** manual set the frequency.
+- **float getFrequency()** return the set value.
+- **float detectFrequency(float minimalFrequency = 40)** blocking, 
+measures the frequency and period.
 - **void setMicrosAdjust(float factor = 1.000)** adjust timing 
-for frequency detection. (optional).
+for the detectFrequency() function. (optional).
 - **float getMicrosAdjust()** idem.
 
 
 ### AC Measurements
 
-AC measurements block for at least one cycle, so for 60 Hz this is 17 ms,
-for 50 Hz it is 20 ms.
+AC measurements block for at least one cycle / period. 
+For 60 Hz this is about 17 ms, for 50 Hz this is about 20 ms.
+More cycles makes the measurement more accurate but takes more (blocking) time.
 
 - **float mA_peak2peak(uint16_t cycles = 1)** measure the peak 
-to peak voltage for AC. More cycles makes it more accurate but takes more time.
+to peak signal for AC. 
 - **float mA_AC(uint16_t cycles = 1)** measures the current-RMS
-by applying a known the crust / FormFactor of the wave.
+by applying a known crust / FormFactor of the wave.
 See section below.
 - **float mA_AC_sampling(uint16_t cycles = 1)** measures the current-RMS
 by summing the squares of the amplitudes of one period.
@@ -147,6 +153,8 @@ This is to be used for voltages with unknown FormFactor.
 
 
 ### Form Factor
+
+To be used for **mA_AC()** function.
 
 - **void setFormFactor(float formFactor = AMC_FF_SINUS)** sets the FormFactor 
 for mA_AC() function.
@@ -157,9 +165,7 @@ for mA_AC() function.
 
 - **float mA_DC(uint16_t cycles = 1)** reads outN and outP 
 and calculates the current.
-More cycles makes it more accurate but takes more time.
-- **float readVoltageN()** reads the voltage at N (before shunt).
-- **float readVoltageP()** reads the voltage at P (after shunt).
+More cycles makes the measurement more accurate but takes more time.
 
 
 ### Debugging
@@ -167,9 +173,9 @@ More cycles makes it more accurate but takes more time.
 - **uint32_t getMinimum()** raw minimum
 - **uint32_t getMaximum()** raw maximum.
 - **int32_t rawDifference()** raw differential.
-Can also be used for own conversion service.
-- **float readVoltageN()** read voltage at outN.
-- **float readVoltageP()** read voltage at outP.
+Can also be used for own conversion math.
+- **float readVoltageN()** reads the voltage at N (before shunt).
+- **float readVoltageP()** reads the voltage at P (after shunt).
 - **float getGain()** returns hard coded gain. Differs per device type.
 Gain cannot be set.
 - **int16_t getLastError()** placeholder for error handling.
@@ -187,17 +193,17 @@ Gain cannot be set.
 
 - investigate calibration
   - need hardware
-- remove unneeded functions
 
 #### Could
 
 - can other data be derived from this AMC1302?
 - add examples (from ACS712?)
 - investigate support external ADC (see TRAFO / ACS712)
-  - need two of them.
+  - need two ADC's
 - create unit tests if possible
 - add error handling
   - out of range
+- remove unneeded functions
 
 #### Wont
 

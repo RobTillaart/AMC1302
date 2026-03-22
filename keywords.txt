@@ -13,6 +13,8 @@ AMC1351	KEYWORD1
 begin	KEYWORD2
 calibrateVoltsPerStep	KEYWORD2
 
+setFrequency	KEYWORD2
+getFrequency	KEYWORD2
 detectFrequency	KEYWORD2
 setMicrosAdjust	KEYWORD2
 getMicrosAdjust	KEYWORD2

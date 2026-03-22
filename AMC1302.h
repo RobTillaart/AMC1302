@@ -39,9 +39,12 @@ class AMC1302
     //  needs a DC current (?).
     float    calibrateVoltsPerStep(float current);
 
+    //  manual set frequency
+    void     setFrequency(float frequency);
+    float    getFrequency();
     //  Frequency detection (sine wave only)
     //  the minimal frequency determines the time to sample.
-    float    detectFrequency(float minimalFrequency = 40);
+    float    detectFrequency(float minimalFrequency = 40.0);
     void     setMicrosAdjust(float factor = 1.000);
     float    getMicrosAdjust();
 
@@ -98,14 +101,14 @@ class AMC1302
     uint8_t _outNpin;
     uint8_t _outPpin;
 
-    float   _gain;  //  fixed see datasheet, set in constructor.
-    float   _formFactor;    //  peak2peak -> RMS
-    float   _frequency = 50;
-    float   _microsAdjust   = 1.0;  //  0.9986
-        
-    float   _voltsPerStep  = 1.0f;  //  e.g. 5.0/1023
-    float   _shunt = 50e-3;         //  50 mOhm
-    float   _amperePerVolt = 1.0f;  //  factor for optimized math
+    float   _gain;        //  fixed gain see datasheet, set in constructor.
+    float   _formFactor;  //  peak2peak -> RMS
+    float   _frequency     = 50.0;   //  default
+    float   _microsAdjust  = 1.0;    //  0.9986
+
+    float   _voltsPerStep  = 1.0f;   //  e.g. 5.0/1023
+    float   _shunt         = 50e-3;  //  50 mOhm
+    float   _amperePerVolt = 1.0f;   //  factor for optimized math
 
     uint8_t _lastError = AMC1302_OK;
 };

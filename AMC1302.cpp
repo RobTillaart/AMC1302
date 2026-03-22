@@ -46,6 +46,18 @@ float AMC1302::calibrateVoltsPerStep(float current)
 }
 
 
+void AMC1302::setFrequency(float frequency)
+{
+  _frequency = frequency;
+}
+
+
+float AMC1302::getFrequency()
+{
+  return _frequency;
+}
+
+
 //  FREQUENCY DETECTION
 //  uses oversampling and averaging to minimize variation
 //  blocks for substantial amount of time, depending on minimalFrequency
