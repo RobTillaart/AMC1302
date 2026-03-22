@@ -25,7 +25,7 @@ The library is not tested with hardware yet - feedback welcome.
 The working is based upon a differential voltage over a defined shunt.
 For the differential voltage two ADC measurements are made called N and P.
 The calculation for DC is done with Ohm's law, current = (Vp - Vn) / shunt.
-For AC the calculation is a bit more work.
+For AC the calculation a bit more work is needed.
 
 The AMC1302 has a build in fixed GAIN of 41, so it is used to measure small
 voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
@@ -33,23 +33,8 @@ voltage differences. E.g. an input voltage of 0.1 Volt becomes 4.1 volt.
 The AMC1302 is internally opto-isolated so the processor / board is protected 
 against sudden fluctuations. (Read datasheet for details).
 
-The library has the following six classes, code wise the only difference
-is the gain. Be sure to use the correct class as the gain cannot be set.
-For gain error and gain drift check the datasheet.
+Derived classes exist for AMC1200, AMC1300, AMC1301, AMC1311 and AMC1351.
 
-|  device    |  gain  |  error  |  drift       |
-|:----------:|:------:|:-------:|:------------:|
-|  AMC1200   |   8.0  |  ±0.5%  |  ±50 ppm/°C  |
-|  AMC1300   |   8.2  |  ±1.0%  |  ±50 ppm/°C  |
-|  AMC1300B  |   8.2  |  ±0.3%  |  ±30 ppm/°C  |
-|  AMC1301   |   8.2  |  ±0.3%  |  ±50 ppm/°C  |
-|  AMC1302   |  41.0  |  ±0.2%  |  ±35 ppm/°C  |
-|  AMC1311   |   1.0  |  ±1.0%  |  ±30 ppm/°C  |
-|  AMC1311B  |   1.0  |  ±0.2%  |  ±40 ppm/°C  |
-|  AMC1351   |   0.4  |  ±0.2%  |  ±35 ppm/°C  |
-
-As the gain error is in the order 1 in 1000, it makes little sense to use
-an ADC with e.g. more than 12 bit. 
 
 The library does not support external ADCs yet.
 
@@ -66,12 +51,23 @@ Feedback as always is welcome,
 
 ### Compatibles
 
-Derived classes exist for the following devices 
-- AMC1200
-- AMC1300
-- AMC1301
-- AMC1311
-- AMC1351
+The library has the following six classes, code wise the only difference
+is the gain. Be sure to use the correct class as the gain cannot be set.
+For gain error and gain drift check the datasheet.
+
+|  device    |  gain  |  error  |  drift       |  notes  |
+|:----------:|:------:|:-------:|:------------:|:--------|
+|  AMC1200   |   8.0  |  ±0.5%  |  ±50 ppm/°C  |
+|  AMC1300   |   8.2  |  ±1.0%  |  ±50 ppm/°C  |
+|  AMC1300B  |   8.2  |  ±0.3%  |  ±30 ppm/°C  |  use AMC1300
+|  AMC1301   |   8.2  |  ±0.3%  |  ±50 ppm/°C  |
+|  AMC1302   |  41.0  |  ±0.2%  |  ±35 ppm/°C  |  base class
+|  AMC1311   |   1.0  |  ±1.0%  |  ±30 ppm/°C  |
+|  AMC1311B  |   1.0  |  ±0.2%  |  ±40 ppm/°C  |  use AMC1311
+|  AMC1351   |   0.4  |  ±0.2%  |  ±35 ppm/°C  |
+
+As the gain error is in the order 1 in 1000, it makes little sense to use
+an ADC with e.g. more than 12 bit.
 
 There exists AMC1304, AMC1305, AMC1306 AMC1336, but these are not compatible.
 
@@ -111,10 +107,12 @@ analog pins connected to outN and outP of the AMC1302.
 - **float calibrateVoltsPerStep(float current)** optional function to 
 calibrate the begin() function one can measure an exact current with a 
 calibrated device (DMM).
-This function adjusts and returns the voltsPerStep parameter based upon 
-given shunt and the **current** parameter which should not be 0 (zero).
+
+The **calibrateVoltsPerStep()** function adjusts and returns the voltsPerStep
+parameter based upon given shunt and the **current** parameter which should
+not be 0 (zero).
 The value is returned so it can be used for the **begin()** function.
-Note begin() has to be called to initialize shunt and first order volts
+Note **begin()** has to be called to initialize shunt and first order volts
 per step.
 
 
@@ -160,6 +158,14 @@ To be used for **mA_AC()** function.
 for mA_AC() function.
 - **float getFormFactor()** returns set value.
 
+Four predefined formFactors exists:
+```
+AMC_FF_SINUS
+AMC_FF_SQUARE
+AMC_FF_TRIANGLE
+AMC_FF_SAWTOOTH
+```
+
 
 ### DC Measurements
 
@@ -179,6 +185,15 @@ Can also be used for own conversion math.
 - **float getGain()** returns hard coded gain. Differs per device type.
 Gain cannot be set.
 - **int16_t getLastError()** placeholder for error handling.
+
+
+## Derived classes constructors
+
+- **AMC1200(uint8_t outNpin, uint8_t outPpin)** idem above.
+- **AMC1300(uint8_t outNpin, uint8_t outPpin)** idem above.
+- **AMC1301(uint8_t outNpin, uint8_t outPpin)** idem above.
+- **AMC1311(uint8_t outNpin, uint8_t outPpin)** idem above.
+- **AMC1351(uint8_t outNpin, uint8_t outPpin)** idem above.
 
 
 ## Future
